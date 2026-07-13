@@ -18,6 +18,8 @@ body { margin: 0; background: var(--ink); color: var(--snow); font-family: var(-
 button, input, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 ::selection { background: var(--accent); color: var(--ink); }
+h1, h2, h3 { text-wrap: balance; word-break: keep-all; overflow-wrap: break-word; }
+p { text-wrap: pretty; word-break: keep-all; overflow-wrap: break-word; }
 
 .proposal-shell { min-height: 100dvh; overflow: clip; background: var(--ink); }
 .snow { position: fixed; inset: 0; pointer-events: none; z-index: 8; overflow: hidden; }
@@ -70,7 +72,20 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .freeze-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: breathe 2.4s ease-in-out infinite; }
 @keyframes breathe { 50% { transform: scale(1.8); opacity: .35; } }
 .freeze-copy { width: min(620px, 80%); margin: 90px 0 0 auto; }
-.freeze-copy h2 { margin: 0 0 22px; font-size: clamp(34px, 4vw, 56px); letter-spacing: -.045em; font-weight: 540; }
+.freeze-copy h2 { margin: 0 0 22px; white-space: pre-line; font-size: clamp(34px, 4vw, 56px); letter-spacing: -.045em; font-weight: 540; }
+
+.freeze-details { width: min(1240px, 100%); margin: 0 auto; padding: 90px 40px 150px; }
+.freeze-detail { min-height: 72dvh; display: grid; grid-template-columns: minmax(220px, .72fr) minmax(0, 1.28fr); gap: clamp(60px, 11vw, 170px); align-items: center; border-bottom: 1px solid var(--line); }
+.freeze-detail:last-child { border-bottom: 0; }
+.freeze-detail-meta { align-self: stretch; padding: 70px 0; display: flex; flex-direction: column; justify-content: space-between; }
+.freeze-detail-meta span { color: var(--accent); font: 10px var(--font-mono); letter-spacing: .16em; }
+.freeze-detail-meta code { color: #686971; font: 11px/1.7 var(--font-mono); }
+.freeze-detail-copy { max-width: 700px; padding: 80px 0; }
+.freeze-detail-copy h3 { margin: 0 0 30px; white-space: pre-line; font-size: clamp(38px, 5vw, 66px); line-height: 1.02; letter-spacing: -.052em; font-weight: 540; }
+.freeze-detail-copy p { max-width: 590px; margin: 0; color: var(--fog); font-size: 17px; line-height: 1.9; }
+.freeze-detail:nth-child(even) { grid-template-columns: minmax(0, 1.28fr) minmax(220px, .72fr); }
+.freeze-detail:nth-child(even) .freeze-detail-meta { order: 2; text-align: right; }
+.freeze-detail:nth-child(even) .freeze-detail-copy { order: 1; }
 
 .lyrics-section { min-height: 100dvh; display: grid; grid-template-columns: .7fr 1.3fr; gap: 8vw; align-items: center; padding: 130px max(6vw, 30px); }
 .song-meta { align-self: start; position: sticky; top: 150px; display: grid; gap: 12px; color: var(--accent); }
@@ -91,13 +106,16 @@ button, a { -webkit-tap-highlight-color: transparent; }
 footer { min-height: 100px; padding: 0 34px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); color: #666770; font: 10px var(--font-mono); letter-spacing: .1em; }
 
 @media (max-width: 767px) {
+  html { scroll-snap-type: y mandatory; scroll-padding-top: 0; }
+  .hero, .section-heading, .scene, .freeze-section, .freeze-detail, .lyrics-section, .finale { scroll-snap-align: start; scroll-snap-stop: always; }
   .hero { grid-template-columns: 1fr; }.hero-rail { display: none; }.terminal { width: calc(100% - 32px); margin: 80px 16px 120px; }.terminal-body { padding: 34px 23px 45px; }.terminal h1 { font-size: 42px; }.scroll-cue { left: 20px; right: auto; bottom: 35px; }
   .music-dock { top: 10px; right: 10px; width: min(282px, calc(100% - 20px)); }
-  .story { padding: 100px 16px 120px; }.section-heading { margin: 0 0 90px; }.section-heading h2 { font-size: 39px; }
-  .scene, .scene-reverse { grid-template-columns: 1fr; gap: 38px; margin-bottom: 120px; }.scene-reverse .photo-frame, .scene-reverse .scene-copy { order: initial; }.photo-frame-tall { max-width: none; aspect-ratio: 4/5; }.scene-copy h3 { font-size: 34px; }
+  .story { padding: 0 16px; }.section-heading { min-height: 100svh; margin: 0; padding: 110px 0 70px; display: grid; align-content: center; }.section-heading h2 { font-size: 39px; }
+  .scene, .scene-reverse { min-height: 100svh; grid-template-columns: 1fr; align-content: center; gap: 30px; margin: 0; padding: 76px 0 46px; }.scene-reverse .photo-frame, .scene-reverse .scene-copy { order: initial; }.photo-frame-wide, .photo-frame-tall { width: 100%; max-width: none; height: min(42svh, 360px); aspect-ratio: auto; }.scene-copy h3 { margin: 18px 0 14px; white-space: pre-line; font-size: 31px; }.scene-copy p { margin: 0; font-size: 15px; line-height: 1.72; }
   .freeze-section { min-height: 100dvh; padding: 120px 22px 90px; display: block; }.freeze-rule { display: none; }.freeze-code { white-space: normal; flex-wrap: wrap; }.freeze-code strong { font-size: 37px; }.freeze-copy { width: 100%; margin-top: 80px; }
+  .freeze-details { width: 100%; padding: 0 22px; }.freeze-detail, .freeze-detail:nth-child(even) { min-height: 100svh; grid-template-columns: 1fr; grid-template-rows: auto 1fr; gap: 0; align-content: center; padding: 86px 0 50px; }.freeze-detail-meta, .freeze-detail:nth-child(even) .freeze-detail-meta { order: 1; align-self: auto; min-height: 76px; padding: 0; text-align: left; }.freeze-detail-copy, .freeze-detail:nth-child(even) .freeze-detail-copy { order: 2; align-self: center; padding: 34px 0 0; }.freeze-detail-copy h3 { margin-bottom: 24px; font-size: clamp(34px, 10vw, 45px); line-height: 1.04; }.freeze-detail-copy p { font-size: 15px; line-height: 1.78; }
   .lyrics-section { grid-template-columns: 1fr; padding: 100px 22px; gap: 30px; }.song-meta { position: static; }.lyric-window { padding: 50px 0; }.lyric-window p { font-size: 27px; }.lyric-window p.active { transform: translateX(0); }
-  .finale { grid-template-columns: 1fr; }.finale-photo { min-height: 58dvh; aspect-ratio: 4/5; }.finale-copy { min-height: 72dvh; padding: 75px 22px; border-left: 0; border-top: 1px solid var(--line); }.answer-actions { align-items: stretch; flex-direction: column; }.yes-button { width: 100%; }.no-button { align-self: center; }
+  .finale { min-height: 100svh; grid-template-columns: 1fr; grid-template-rows: 38svh minmax(62svh, auto); }.finale-photo { min-height: 0; height: 38svh; aspect-ratio: auto; }.finale-copy { min-height: 62svh; padding: 45px 22px 40px; border-left: 0; border-top: 1px solid var(--line); }.finale-copy h2 { font-size: 52px; }.answer-actions { align-items: stretch; flex-direction: column; gap: 12px; margin-top: 30px; }.yes-button { width: 100%; }.no-button { align-self: center; }
 }
 
 @media (prefers-reduced-motion: reduce) {

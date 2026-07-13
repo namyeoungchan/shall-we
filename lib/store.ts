@@ -37,7 +37,7 @@ async function writeJson(key: string, value: unknown): Promise<void> {
 export async function readContent(): Promise<Content> {
   const saved = await readJson<Partial<Content>>(CONTENT_KEY);
   if (!saved) return defaultContent;
-  return { ...defaultContent, ...saved, hero: { ...defaultContent.hero, ...saved.hero }, freeze: { ...defaultContent.freeze, ...saved.freeze }, finale: { ...defaultContent.finale, ...saved.finale }, song: { ...defaultContent.song, ...saved.song }, scenes: saved.scenes ?? defaultContent.scenes };
+  return { ...defaultContent, ...saved, hero: { ...defaultContent.hero, ...saved.hero }, freeze: { ...defaultContent.freeze, ...saved.freeze, details: saved.freeze?.details ?? defaultContent.freeze.details }, finale: { ...defaultContent.finale, ...saved.finale }, song: { ...defaultContent.song, ...saved.song }, scenes: saved.scenes ?? defaultContent.scenes };
 }
 export async function writeContent(content: Content): Promise<void> { await writeJson(CONTENT_KEY, content); }
 export async function readAnswers(): Promise<AnswerRecord[]> { return (await readJson<AnswerRecord[]>(ANSWERS_KEY)) ?? []; }

@@ -171,6 +171,22 @@ export function ProposalExperience({ content: initialContent }: { content: Conte
         <div className="freeze-copy"><h2>{content.freeze.title}</h2><p>{content.freeze.text}</p></div>
       </section>
 
+      <section className="freeze-details" aria-label="Object.freeze 상세 설명">
+        {content.freeze.details.map((detail, index) => (
+          <motion.article
+            className="freeze-detail"
+            key={`${detail.label}-${index}`}
+            initial={{ opacity: 0, y: 36 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.35 }}
+            transition={spring}
+          >
+            <div className="freeze-detail-meta"><span>{detail.label}</span><code>{detail.code}</code></div>
+            <div className="freeze-detail-copy"><h3>{detail.title}</h3><p>{detail.text}</p></div>
+          </motion.article>
+        ))}
+      </section>
+
       <section className="lyrics-section">
         <div className="song-meta"><MusicNotes size={20} /><span>NOW PLAYING</span><strong>{content.song.title}</strong><small>{content.song.artist}</small></div>
         <div className="lyric-window" aria-live="polite">

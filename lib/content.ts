@@ -18,6 +18,12 @@ export type Content = {
     code: string;
     title: string;
     text: string;
+    details: {
+      label: string;
+      code: string;
+      title: string;
+      text: string;
+    }[];
   };
   finale: {
     question: string;
@@ -77,8 +83,34 @@ export const defaultContent: Content = {
   ],
   freeze: {
     code: "Object.freeze(us);",
-    title: "이제 우리를 다시 쓸 수 없게.",
-    text: "변하지 않겠다는 말보다, 어떤 변화 안에서도 우리라는 참조를 지키겠다는 약속. 자바스크립트에서 얼어붙은 객체는 다시 바뀌지 않아. 나는 우리의 이름을 그렇게 오래 지키고 싶어.",
+    title: "변하지 않는 건,\n우리의 모양이 아니라 약속.",
+    text: "Object.freeze()는 객체를 멈춰 세우는 함수가 아니야. 이미 정한 속성을 다른 값으로 바꾸거나, 없애거나, 새로운 규칙을 덧붙이지 못하게 해. 우리의 삶은 계속 움직이되 서로를 선택한다는 약속만은 다시 쓰지 않겠다는 뜻이야.",
+    details: [
+      {
+        label: "01 / NO EXTENSION",
+        code: "Object.isExtensible(us) // false",
+        title: "함부로 다른 약속을\n덧붙이지 않기",
+        text: "동결된 객체에는 새 속성을 추가할 수 없어. 우리 사이의 약속도 순간의 기분으로 몰래 조건을 더하지 않고, 언제나 함께 이야기해서 정하고 싶어.",
+      },
+      {
+        label: "02 / READ ONLY",
+        code: "us.promise = 'another' // ignored",
+        title: "이미 건넨 마음을\n다른 값으로 바꾸지 않기",
+        text: "기존 데이터 속성은 쓸 수 없는 상태가 돼. 오늘 건넨 이 마음을 내일의 편의에 따라 다른 의미로 바꾸지 않겠다는 선언이야.",
+      },
+      {
+        label: "03 / NO DELETE",
+        code: "delete us.memories // false",
+        title: "지나온 시간을\n없었던 일로 만들지 않기",
+        text: "속성을 지우거나 다시 정의할 수도 없어. 좋았던 날과 서툴렀던 날 모두 우리를 만든 기록이니까, 필요한 순간마다 함께 꺼내 읽을게.",
+      },
+      {
+        label: "04 / SHALLOW FREEZE",
+        code: "us.memories.push('tomorrow') // works",
+        title: "그래도 우리의 안쪽은\n계속 자라날 수 있게",
+        text: "Object.freeze()는 얕은 동결이야. 객체 안에 담긴 배열과 객체까지 멈추지는 않아. 약속의 바깥선은 지키면서도, 그 안의 기억과 우리는 매일 새로운 모습으로 자라날 수 있어.",
+      },
+    ],
   },
   finale: {
     question: "Shall we?",

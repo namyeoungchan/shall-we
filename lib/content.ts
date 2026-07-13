@@ -127,8 +127,8 @@ export const defaultContent: Content = {
   finale: {
     question: "Shall we?",
     subtext: "이 스크립트의 마지막 줄을 함께 실행해 줄래?",
-    yesLabel: "응, 영원히",
-    noLabel: "조금만 더 생각해볼게",
+    yesLabel: "yes",
+    noLabel: "no",
     photoUrl: null,
     afterCode: "Object.isFrozen(us) // true",
     afterTitle: "이제 우리는 상수예요",

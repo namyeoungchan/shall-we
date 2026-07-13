@@ -2,13 +2,49 @@
 
 /* eslint-disable @next/next/no-img-element -- 관리자 지정 Blob URL은 호스트가 런타임에 결정됩니다. */
 
-import { memo, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
-import { ArrowDown, MusicNotes, Pause, Play, SpeakerHigh, SpeakerSlash } from "@phosphor-icons/react";
+import { memo, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { AnimatePresence, motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { ArrowDown, Check, MusicNotes, Pause, Play, SpeakerHigh, SpeakerSlash } from "@phosphor-icons/react";
 import { type Content, parseLrc } from "@/lib/content";
 
 const spring = { type: "spring" as const, stiffness: 100, damping: 20 };
 const LOCK_KEY = "shall-we:final-answer:v1";
+
+const BOOT_LOG = [
+  { cmd: "let us = {}", out: "declared" },
+  { cmd: "us.memories", out: "1,238 loaded" },
+  { cmd: "compile(promise)", out: "ok" },
+  { cmd: "Object.freeze(us)", out: "pending" },
+];
+
+const ScrollProgress = memo(function ScrollProgress() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.3 });
+  return <motion.div className="scroll-progress" style={{ scaleX }} aria-hidden="true" />;
+});
+
+function TiltFrame({ children }: { children: ReactNode }) {
+  const reduceMotion = useReducedMotion();
+  const px = useMotionValue(0);
+  const py = useMotionValue(0);
+  const rotateX = useSpring(useTransform(py, [-0.5, 0.5], [7, -7]), spring);
+  const rotateY = useSpring(useTransform(px, [-0.5, 0.5], [-7, 7]), spring);
+  if (reduceMotion) return <div className="tilt">{children}</div>;
+  return (
+    <motion.div
+      className="tilt"
+      style={{ rotateX, rotateY, transformPerspective: 900 }}
+      onPointerMove={(event) => {
+        const rect = event.currentTarget.getBoundingClientRect();
+        px.set((event.clientX - rect.left) / rect.width - 0.5);
+        py.set((event.clientY - rect.top) / rect.height - 0.5);
+      }}
+      onPointerLeave={() => { px.set(0); py.set(0); }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 function MagneticButton({ children, className, onClick }: { children: React.ReactNode; className?: string; onClick?: () => void }) {
   const x = useMotionValue(0);
@@ -190,7 +226,7 @@ export function ProposalExperience({ content: initialContent }: { content: Conte
       try { await audioRef.current.play(); setPlaying(true); }
       catch { setPlaying(false); }
     }
-    window.setTimeout(() => document.querySelector("#story")?.scrollIntoView({ behavior: "smooth" }), 380);
+    window.setTimeout(() => document.querySelector("#story")?.scrollIntoView({ behavior: "smooth" }), 1720);
   }
 
   async function togglePlay() {
@@ -225,6 +261,7 @@ export function ProposalExperience({ content: initialContent }: { content: Conte
   return (
     <main className="proposal-shell">
       <audio ref={audioRef} src={content.bgmUrl ?? undefined} preload="metadata" muted={muted} />
+      <ScrollProgress />
       <Snow />
       <AnimatePresence>{started && <motion.aside className="music-dock" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={spring}>
         <button type="button" onClick={togglePlay} aria-label={playing ? "음악 일시정지" : "음악 재생"} disabled={!content.bgmUrl}>{playing ? <Pause size={17} weight="fill" /> : <Play size={17} weight="fill" />}</button>
@@ -241,16 +278,27 @@ export function ProposalExperience({ content: initialContent }: { content: Conte
             <h1>{content.hero.title}</h1>
             <p className="hero-copy">{content.hero.subtitle}</p>
             <MagneticButton className="run-button" onClick={start}><Play size={18} weight="fill" /><span>{started ? "script is running" : content.hero.runLabel}</span></MagneticButton>
+            <AnimatePresence>{started && (
+              <motion.ul className="boot-log" aria-hidden="true" initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.26, delayChildren: 0.12 } } }}>
+                {BOOT_LOG.map((line) => (
+                  <motion.li key={line.cmd} variants={{ hidden: { opacity: 0, x: -8 }, show: { opacity: 1, x: 0 } }} transition={spring}>
+                    <Check size={13} weight="bold" />
+                    <code>{line.cmd}</code>
+                    <em>{line.out}</em>
+                  </motion.li>
+                ))}
+              </motion.ul>
+            )}</AnimatePresence>
           </div>
         </div>
         <a className="scroll-cue" href="#story"><ArrowDown size={17} /><span>SCROLL TO READ</span></a>
       </section>
 
       <section id="story" className="story">
-        <header className="section-heading"><span>02 / MUTABLE</span><h2>변할 수 있어서<br />더 오래 사랑한 기록.</h2></header>
+        <header className="section-heading"><span>02 / MUTABLE</span><h2>변할 수 있어서<br />더 오래 사랑했어.</h2></header>
         {content.scenes.length ? content.scenes.map((scene, index) => (
           <motion.article className={`scene ${index % 2 ? "scene-reverse" : ""}`} key={scene.id} initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ ...spring, delay: 0.05 }}>
-            <MediaFrame src={scene.photoUrl} index={index} alt={scene.title} />
+            <TiltFrame><MediaFrame src={scene.photoUrl} index={index} alt={scene.title} /></TiltFrame>
             <div className="scene-copy"><code>{scene.code}</code><h3>{scene.title}</h3><p>{scene.text}</p></div>
           </motion.article>
         )) : <div className="story-empty">아직 저장된 장면이 없습니다.<br /><small>/admin에서 첫 장면을 추가해 주세요.</small></div>}
@@ -258,7 +306,7 @@ export function ProposalExperience({ content: initialContent }: { content: Conte
 
       <section className="freeze-section">
         <div className="freeze-rule"><span>03</span><i /><span>IMMUTABLE</span></div>
-        <motion.div className="freeze-code" initial={{ opacity: 0, scale: 0.96 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, amount: 0.7 }} transition={spring}><span>const promise =</span><strong>{content.freeze.code}</strong><i className="freeze-pulse" /></motion.div>
+        <motion.div className="freeze-code" initial={{ opacity: 0, scale: 0.96 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, amount: 0.7 }} transition={spring}><span>const promise =</span><strong>{content.freeze.code}</strong><i className="freeze-pulse" /><motion.i className="freeze-frost" aria-hidden="true" initial={{ x: "-130%" }} whileInView={{ x: "130%" }} viewport={{ once: true, amount: 0.7 }} transition={{ duration: 1.15, ease: [0.16, 1, 0.3, 1], delay: 0.2 }} /></motion.div>
         <div className="freeze-copy"><h2>{content.freeze.title}</h2><p>{content.freeze.text}</p></div>
       </section>
 
